@@ -26,6 +26,23 @@ app.get('/promo-banner', async (req, res) => {
     }
 });
 
+app.get('/dashboard', async (req, res) => {
+    try {
+        await ldClient.waitForInitialization();
+        const user = { key: req.query.user || "anonymous-user" };
+        const newDashboardEnabled = await ldClient.variation("new-dashboard", user, false);
+
+        console.log(`User: ${user.key} | New Dashboard: ${newDashboardEnabled}`);
+
+        res.json({ dashboard: newDashboardEnabled ? "New Dashboard is Live!" : "Old Dashboard (Default)" });
+    } catch (error) {
+        console.error("LaunchDarkly Error:", error);
+        res.status(500).json({ error: "Error fetching feature flag" });
+    }
+});
+
+
+
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
 });
