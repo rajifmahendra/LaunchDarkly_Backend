@@ -16,7 +16,6 @@ app.get('/promo-banner', async (req, res) => {
 
         const user = { key: req.query.user || "anonymous-user" };
 
-        // Dapatkan varian banner dari LaunchDarkly
         const bannerVersion = await ldClient.variation("promo-banner-version", user, "A");
 
         res.json({ bannerVersion });
