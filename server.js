@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const LaunchDarkly = require('launchdarkly-node-server-sdk');
 const cors = require('cors');
+const koutaController = require('./controllers/koutaController');
 
 const app = express();
 const port = 3000;
@@ -25,6 +26,9 @@ app.get('/promo-banner', async (req, res) => {
         res.status(500).json({ error: "Terjadi kesalahan saat mengambil feature flag" });
     }
 });
+
+// Endpoint kuota menggunakan controller
+app.get('/api/quota', koutaController.getQuota(ldClient));
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
