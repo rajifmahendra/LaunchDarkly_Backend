@@ -1,0 +1,9 @@
+services:
+  backend:
+    build: .
+    container_name: launchdarkly_backend
+    restart: unless-stopped
+    ports:
+      - "4000:3000"
+
+
