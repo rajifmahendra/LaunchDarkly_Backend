@@ -17,7 +17,8 @@
     "express": "^4.21.2",
     "launchdarkly-js-client-sdk": "^3.5.0",
     "launchdarkly-node-client-sdk": "^3.3.0",
-    "launchdarkly-node-server-sdk": "^7.0.4"
+    "launchdarkly-node-server-sdk": "^7.0.4",
+    "mysql2": "^3.14.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.9"

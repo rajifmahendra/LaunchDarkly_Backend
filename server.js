@@ -7,6 +7,7 @@ const koutaController = require('./controllers/koutaController');
 const app = express();
 const port = 3000;
 
+app.use(express.json()); // agar bisa baca JSON body
 app.use(cors());
 
 const ldClient = LaunchDarkly.init(process.env.LD_SDK_KEY);
@@ -28,7 +29,9 @@ app.get('/promo-banner', async (req, res) => {
 });
 
 // Endpoint kuota menggunakan controller
-app.get('/api/quota', koutaController.getQuota(ldClient));
+app.get('/api/getQuota', koutaController.getQuota(ldClient));
+
+app.post('/api/postQuota', koutaController.postQuota);
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
