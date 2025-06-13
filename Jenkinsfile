@@ -63,7 +63,7 @@ pipeline {
         }
 
         // Uncomment jika ingin aktifkan tahapan Docker build dan run
-        /*
+        
         stage('Build Docker Image') {
             steps {
                 dir("${env.REPO_NAME}") {
@@ -88,7 +88,7 @@ pipeline {
                 """
             }
         }
-        */
+        
     }
 
     post {
