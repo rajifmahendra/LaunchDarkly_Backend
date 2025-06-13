@@ -25,20 +25,38 @@ exports.getQuota = (ldClient) => {
 };
 
 // POST kuota
-exports.postQuota = (req, res) => {
-    const { nama, email, no_hp, kuota } = req.body;
 
-    if (!nama || !email || !no_hp || !kuota) {
-        return res.status(400).json({ error: "Semua field wajib diisi." });
-    }
+exports.postQuota = (ldClient) => {
+    return async (req, res) => {
+        const { nama, email, no_hp, kuota } = req.body;
 
-    const query = 'INSERT INTO pembelian (nama, email, no_hp, kuota) VALUES (?, ?, ?, ?)';
-    db.query(query, [nama, email, no_hp, kuota], (err, result) => {
-        if (err) {
-            console.error("Gagal simpan ke DB:", err);
-            return res.status(500).json({ error: "Gagal menyimpan data ke database." });
+        if (!nama || !email || !no_hp || !kuota) {
+            return res.status(400).json({ error: "Semua field wajib diisi." });
         }
 
-        res.status(201).json({ message: "Data berhasil disimpan", id: result.insertId });
-    });
+        try {
+            const user = { key: "anonymous-user" };
+
+            await ldClient.waitForInitialization();
+            const isPostEnabled = await ldClient.variation("be-kuota-data", user, false);
+
+            if (!isPostEnabled) {
+                return res.status(403).json({ message: "Fitur post kuota sedang dimatikan." });
+            }
+
+            const query = 'INSERT INTO pembelian (nama, email, no_hp, kuota) VALUES (?, ?, ?, ?)';
+            db.query(query, [nama, email, no_hp, kuota], (err, result) => {
+                if (err) {
+                    console.error("Gagal simpan ke DB:", err);
+                    return res.status(500).json({ error: "Gagal menyimpan data ke database." });
+                }
+
+                res.status(201).json({ message: "Data berhasil disimpan", id: result.insertId });
+            });
+
+        } catch (err) {
+            console.error("Error checking flag:", err);
+            res.status(500).json({ error: "Terjadi kesalahan pada server" });
+        }
+    };
 };

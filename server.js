@@ -31,7 +31,7 @@ app.get('/promo-banner', async (req, res) => {
 // Endpoint kuota menggunakan controller
 app.get('/api/getQuota', koutaController.getQuota(ldClient));
 
-app.post('/api/postQuota', koutaController.postQuota);
+app.post('/api/postQuota', koutaController.postQuota(ldClient));
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
