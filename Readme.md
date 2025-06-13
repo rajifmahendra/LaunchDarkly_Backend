@@ -8,5 +8,5 @@ LAUNCHDARKLY_BACKEND/
 │   ├── index.html
 │   └── script.js
 ├── .env               ✅ simpan credential
-x`├── package.json
+├── package.json
 ├── server.js
