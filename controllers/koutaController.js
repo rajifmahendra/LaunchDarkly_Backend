@@ -35,18 +35,23 @@ exports.postQuota = (ldClient) => {
         }
 
         try {
-            // const user = { key: "anonymous-user" };
             const user = {
-            key: email || "anonymous-user",
-            email: email
+                key: email || "anonymous-user",
+                email: email
             };
 
-
             await ldClient.waitForInitialization();
-            const isPostEnabled = await ldClient.variation("be-kuota-data", user, false);
 
+            // Check if posting feature is enabled
+            const isPostEnabled = await ldClient.variation("be-kuota-data", user, false);
             if (!isPostEnabled) {
                 return res.status(403).json({ message: "Fitur post kuota sedang dimatikan." });
+            }
+
+            // 🔒 Check if user is blocked based on email rules from LaunchDarkly
+            const isBlocked = await ldClient.variation("be-kuota-blocked", user, false);
+            if (isBlocked) {
+                return res.status(403).json({ message: "Maaf, user dengan email ini tidak bisa post kuota." });
             }
 
             const query = 'INSERT INTO pembelian (nama, email, no_hp, kuota) VALUES (?, ?, ?, ?)';
@@ -55,10 +60,8 @@ exports.postQuota = (ldClient) => {
                     console.error("Gagal simpan ke DB:", err);
                     return res.status(500).json({ error: "Gagal menyimpan data ke database." });
                 }
-                
-                //logging
-                console.log(`✅ Data saved successfully: ID=${result.insertId}, Nama=${nama}, Email=${email}`);
 
+                console.log(`✅ Data saved successfully: ID=${result.insertId}, Nama=${nama}, Email=${email}`);
                 res.status(201).json({ message: "Data saved successfully", id: result.insertId });
             });
 
