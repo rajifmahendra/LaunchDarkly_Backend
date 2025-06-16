@@ -42,17 +42,18 @@ exports.postQuota = (ldClient) => {
 
             await ldClient.waitForInitialization();
 
+            // 🔒 Check if user is blocked based on email rules from LaunchDarkly
+            const isBlocked = await ldClient.variation("be-kuota-blocked", user, false);
+            if (isBlocked) {
+                return res.status(403).json({ message: "Maaf, user dengan email ini tidak bisa post kuota." });
+            }
+            
             // Check if posting feature is enabled
             const isPostEnabled = await ldClient.variation("be-kuota-data", user, false);
             if (!isPostEnabled) {
                 return res.status(403).json({ message: "Fitur post kuota sedang dimatikan." });
             }
 
-            // 🔒 Check if user is blocked based on email rules from LaunchDarkly
-            const isBlocked = await ldClient.variation("be-kuota-blocked", user, false);
-            if (isBlocked) {
-                return res.status(403).json({ message: "Maaf, user dengan email ini tidak bisa post kuota." });
-            }
 
             const query = 'INSERT INTO pembelian (nama, email, no_hp, kuota) VALUES (?, ?, ?, ?)';
             db.query(query, [nama, email, no_hp, kuota], (err, result) => {
