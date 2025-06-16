@@ -17,31 +17,31 @@ pipeline {
     }
 
     stages {
-        // stage('Checkout Code') {
-        //     steps {
-        //         withCredentials([usernamePassword(credentialsId: '14d0f3df-5f8e-4401-afb9-a6b85a8a1b93', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
-        //             script {
-        //                 def repoPath = "${env.REPO_NAME}/.git"
-        //                 if (fileExists(repoPath)) {
-        //                     echo "Repo already exists. Pulling latest changes..."
-        //                     dir("${env.REPO_NAME}") {
-        //                         sh """
-        //                             git reset --hard
-        //                             git clean -fd
-        //                             git checkout ${params.BRANCH_NAME}
-        //                             git pull https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git ${params.BRANCH_NAME}
-        //                         """
-        //                     }
-        //                 } else {
-        //                     echo "Cloning repository..."
-        //                     sh """
-        //                         git clone -b ${params.BRANCH_NAME} https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git
-        //                     """
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Checkout Code') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: '14d0f3df-5f8e-4401-afb9-a6b85a8a1b93', usernameVariable: 'GIT_USER', passwordVariable: 'GIT_TOKEN')]) {
+                    script {
+                        def repoPath = "${env.REPO_NAME}/.git"
+                        if (fileExists(repoPath)) {
+                            echo "Repo already exists. Pulling latest changes..."
+                            dir("${env.REPO_NAME}") {
+                                sh """
+                                    git reset --hard
+                                    git clean -fd
+                                    git checkout ${params.BRANCH_NAME}
+                                    git pull https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git ${params.BRANCH_NAME}
+                                """
+                            }
+                        } else {
+                            echo "Cloning repository..."
+                            sh """
+                                git clone -b ${params.BRANCH_NAME} https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git
+                            """
+                        }
+                    }
+                }
+            }
+        }
 
         stage('SAST Checkmarx') {
             steps {
@@ -72,7 +72,7 @@ pipeline {
                             error "❌ Dockerfile not found in ${env.REPO_NAME}!"
                         }
                         sh """
-                            docker build -t ${params.IMAGE_NAME}:${env.IMAGE_TAG} .
+                            docker build --no-cache -t ${params.IMAGE_NAME}:${env.IMAGE_TAG} .
                         """
                     }
                 }
