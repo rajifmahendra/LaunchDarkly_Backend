@@ -6,7 +6,7 @@ pipeline {
         CHECKMARX_INSTALLATION = 'CxAST CLI'
         CHECKMARX_BASE_URL = 'https://anz.ast.checkmarx.net'
         CHECKMARX_TENANT = 'nfr-izeno'
-        CHECKMARX_PROJECT = 'backend_demo_launch_darkly'
+        CHECKMARX_PROJECT = 'platform_backend'
         REPO_NAME = 'LaunchDarkly_Backend'
         IMAGE_TAG = 'latest'
     }
