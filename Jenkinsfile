@@ -29,13 +29,13 @@ pipeline {
                                     git reset --hard
                                     git clean -fd
                                     git checkout ${params.BRANCH_NAME}
-                                    git pull https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git ${params.BRANCH_NAME}
+                                    git pull https://${GIT_USER}:${GIT_TOKEN}@github.com/rajifmahendra/${env.REPO_NAME}.git ${params.BRANCH_NAME}
                                 """
                             }
                         } else {
                             echo "Cloning repository..."
                             sh """
-                                git clone -b ${params.BRANCH_NAME} https://${GIT_USER}:${GIT_TOKEN}@github.com/rahmaneffendi/${env.REPO_NAME}.git
+                                git clone -b ${params.BRANCH_NAME} https://${GIT_USER}:${GIT_TOKEN}@github.com/rajifmahendra/${env.REPO_NAME}.git
                             """
                         }
                     }
