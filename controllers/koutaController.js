@@ -35,7 +35,12 @@ exports.postQuota = (ldClient) => {
         }
 
         try {
-            const user = { key: "anonymous-user" };
+            // const user = { key: "anonymous-user" };
+            const user = {
+            key: email || "anonymous-user",
+            email: email
+            };
+
 
             await ldClient.waitForInitialization();
             const isPostEnabled = await ldClient.variation("be-kuota-data", user, false);
