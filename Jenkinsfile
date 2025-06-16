@@ -7,7 +7,7 @@ pipeline {
         CHECKMARX_BASE_URL = 'https://anz.ast.checkmarx.net'
         CHECKMARX_TENANT = 'nfr-izeno'
         CHECKMARX_PROJECT = 'backend_demo_launch_darkly'
-        REPO_NAME = 'Launchdarkly-Backend'
+        REPO_NAME = 'LaunchDarkly_Backend'
         IMAGE_TAG = 'latest'
     }
 
