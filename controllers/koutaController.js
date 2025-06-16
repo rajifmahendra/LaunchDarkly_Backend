@@ -50,8 +50,11 @@ exports.postQuota = (ldClient) => {
                     console.error("Gagal simpan ke DB:", err);
                     return res.status(500).json({ error: "Gagal menyimpan data ke database." });
                 }
+                
+                //logging
+                console.log(`✅ Data saved successfully: ID=${result.insertId}, Nama=${nama}, Email=${email}`);
 
-                res.status(201).json({ message: "Data berhasil disimpan", id: result.insertId });
+                res.status(201).json({ message: "Data saved successfully", id: result.insertId });
             });
 
         } catch (err) {
