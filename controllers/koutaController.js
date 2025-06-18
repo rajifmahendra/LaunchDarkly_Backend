@@ -37,7 +37,8 @@ exports.postQuota = (ldClient) => {
         try {
             const user = {
                 key: email || "anonymous-user",
-                email: email
+                email: email,
+                anonymous: true
             };
 
             await ldClient.waitForInitialization();
