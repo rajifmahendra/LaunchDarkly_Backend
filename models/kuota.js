@@ -7,7 +7,8 @@ module.exports = {
             { data: "10GB" },
             { data: "30GB" },
             { data: "50GB" },
-            { data: "100GB" }
+            { data: "100GB" },
+            { data: "150GB" }
         ];
     }
 };
