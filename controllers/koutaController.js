@@ -7,22 +7,45 @@ exports.getQuota = (ldClient) => {
         try {
             const userAgent = req.headers['user-agent'] || "unknown";
 
-            // Bisa pakai lib tambahan seperti "ua-parser-js" untuk deteksi OS & browser dengan detail
+            // Tentukan browser berdasarkan user-agent
+            let browser = "Other";
+            if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+                browser = "Chrome";
+            } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+                browser = "Safari";
+            } else if (userAgent.includes("Firefox")) {
+                browser = "Firefox";
+            } else if (userAgent.includes("Edg")) {
+                browser = "Edge";
+            } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
+                browser = "Opera";
+            }
+
+            // Tentukan OS berdasarkan user-agent
+            let os = "Other";
+            if (userAgent.includes("Mac")) {
+                os = "Mac";
+            } else if (userAgent.includes("Windows")) {
+                os = "Windows";
+            } else if (userAgent.includes("Linux")) {
+                os = "Linux";
+            } else if (userAgent.includes("Android")) {
+                os = "Android";
+            } else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) {
+                os = "iOS";
+            }
+
             const user = {
-                key: "anonymous-user", // atau IP atau ID session
+                key: "anonymous-user", // atau pakai IP/email jika unik
                 custom: {
                     userAgent: userAgent,
-                    browser: userAgent.includes("Chrome") ? "Chrome"
-                             : userAgent.includes("Safari") ? "Safari"
-                             : "Other",
-                    os: userAgent.includes("Mac") ? "Mac"
-                        : userAgent.includes("Windows") ? "Windows"
-                        : "Other"
+                    browser: browser,
+                    os: os
                 }
             };
 
             await ldClient.waitForInitialization();
-            await ldClient.identify(user); // agar muncul di LaunchDarkly
+            await ldClient.identify(user); // supaya context user muncul di LaunchDarkly
 
             const isKuotaEnabled = await ldClient.variation("kuota", user, false);
 
@@ -39,6 +62,7 @@ exports.getQuota = (ldClient) => {
         }
     };
 };
+
 
 
 // POST kuota
