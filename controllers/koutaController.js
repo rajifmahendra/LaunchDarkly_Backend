@@ -5,9 +5,24 @@ const db = require('../models/db');
 exports.getQuota = (ldClient) => {
     return async (req, res) => {
         try {
-            const user = { key: "anonymous-user" };
+            const userAgent = req.headers['user-agent'] || "unknown";
+
+            // Bisa pakai lib tambahan seperti "ua-parser-js" untuk deteksi OS & browser dengan detail
+            const user = {
+                key: "anonymous-user", // atau IP atau ID session
+                custom: {
+                    userAgent: userAgent,
+                    browser: userAgent.includes("Chrome") ? "Chrome"
+                             : userAgent.includes("Safari") ? "Safari"
+                             : "Other",
+                    os: userAgent.includes("Mac") ? "Mac"
+                        : userAgent.includes("Windows") ? "Windows"
+                        : "Other"
+                }
+            };
 
             await ldClient.waitForInitialization();
+            await ldClient.identify(user); // agar muncul di LaunchDarkly
 
             const isKuotaEnabled = await ldClient.variation("kuota", user, false);
 
@@ -17,12 +32,14 @@ exports.getQuota = (ldClient) => {
             } else {
                 return res.json({ message: "kuota tidak tersedia." });
             }
+
         } catch (error) {
             console.error("Error checking quota flag:", error);
             res.status(500).json({ error: "Terjadi kesalahan saat mengecek kuota" });
         }
     };
 };
+
 
 // POST kuota
 
