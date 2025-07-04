@@ -1,10 +1,8 @@
 const kuotaModel = require('../models/kuota');
 const db = require('../models/db');
 
-const { v4: uuidv4 } = require('uuid'); // Kalau mau generate ID unik (jika tidak ada ID dari client)
-
 const crypto = require('crypto');
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Untuk generate ID unik (jika tidak ada ID dari client)
 
 function hashValue(value) {
     return crypto.createHash('sha256').update(value).digest('hex');
