@@ -1,53 +1,64 @@
 const kuotaModel = require('../models/kuota');
 const db = require('../models/db');
 
-// GET kuota
+const { v4: uuidv4 } = require('uuid'); // Kalau mau generate ID unik (jika tidak ada ID dari client)
+
 exports.getQuota = (ldClient) => {
     return async (req, res) => {
         try {
             const userAgent = req.headers['user-agent'] || "unknown";
 
             // Tentukan browser berdasarkan user-agent
-            let browser = "Other";
+            let browserName = "Other";
             if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
-                browser = "Chrome";
+                browserName = "Chrome";
             } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
-                browser = "Safari";
+                browserName = "Safari";
             } else if (userAgent.includes("Firefox")) {
-                browser = "Firefox";
+                browserName = "Firefox";
             } else if (userAgent.includes("Edg")) {
-                browser = "Edge";
+                browserName = "Edge";
             } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
-                browser = "Opera";
+                browserName = "Opera";
             }
 
             // Tentukan OS berdasarkan user-agent
-            let os = "Other";
+            let operatingSystem = "Other";
             if (userAgent.includes("Mac")) {
-                os = "Mac";
+                operatingSystem = "MacOS";
             } else if (userAgent.includes("Windows")) {
-                os = "Windows";
+                operatingSystem = "Windows";
             } else if (userAgent.includes("Linux")) {
-                os = "Linux";
+                operatingSystem = "Linux";
             } else if (userAgent.includes("Android")) {
-                os = "Android";
+                operatingSystem = "Android";
             } else if (userAgent.includes("iPhone") || userAgent.includes("iPad")) {
-                os = "iOS";
+                operatingSystem = "iOS";
             }
 
-            const user = {
-                key: "anonymous-user", // atau pakai IP/email jika unik
-                custom: {
-                    userAgent: userAgent,
-                    browser: browser,
-                    os: os
-                }
+            // Tentukan device type
+            let deviceType = "Desktop";
+            if (/mobile/i.test(userAgent)) {
+                deviceType = "Mobile";
+            } else if (/tablet|ipad/i.test(userAgent)) {
+                deviceType = "Tablet";
+            }
+
+            // Gunakan ID unik atau IP sebagai key
+            const id = req.ip || uuidv4();
+
+            const deviceContext = {
+                kind: "device",        // context kind = device
+                key: id,               // unique identifier (IP atau UUID)
+                device: deviceType,    // Desktop / Mobile / Tablet
+                operatingSystem: operatingSystem, // OS name
+                browserName: browserName          // Browser name
             };
 
             await ldClient.waitForInitialization();
-            await ldClient.identify(user); // supaya context user muncul di LaunchDarkly
+            await ldClient.identify(deviceContext); // supaya context muncul di LaunchDarkly
 
-            const isKuotaEnabled = await ldClient.variation("kuota", user, false);
+            const isKuotaEnabled = await ldClient.variation("kuota", deviceContext, false);
 
             if (isKuotaEnabled) {
                 const availableQuota = kuotaModel.getAvailableQuota();
@@ -62,6 +73,7 @@ exports.getQuota = (ldClient) => {
         }
     };
 };
+
 
 
 
