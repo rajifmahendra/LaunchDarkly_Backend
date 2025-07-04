@@ -3,12 +3,19 @@ const db = require('../models/db');
 
 const { v4: uuidv4 } = require('uuid'); // Kalau mau generate ID unik (jika tidak ada ID dari client)
 
+const crypto = require('crypto');
+const { v4: uuidv4 } = require('uuid');
+
+function hashValue(value) {
+    return crypto.createHash('sha256').update(value).digest('hex');
+}
+
 exports.getQuota = (ldClient) => {
     return async (req, res) => {
         try {
             const userAgent = req.headers['user-agent'] || "unknown";
 
-            // Tentukan browser berdasarkan user-agent
+            // Tentukan browser
             let browserName = "Other";
             if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
                 browserName = "Chrome";
@@ -22,7 +29,7 @@ exports.getQuota = (ldClient) => {
                 browserName = "Opera";
             }
 
-            // Tentukan OS berdasarkan user-agent
+            // Tentukan OS
             let operatingSystem = "Other";
             if (userAgent.includes("Mac")) {
                 operatingSystem = "MacOS";
@@ -44,19 +51,24 @@ exports.getQuota = (ldClient) => {
                 deviceType = "Tablet";
             }
 
-            // Gunakan ID unik atau IP sebagai key
-            const id = req.ip || uuidv4();
+            // Gunakan deviceId dari client (kalau ada) atau buat UUID baru
+            const deviceId = req.headers['x-device-id'] || uuidv4();
+
+            // 🔒 Hash the deviceId (key) and name
+            const hashedKey = hashValue(deviceId);
+            const hashedName = hashValue(`${browserName}-${operatingSystem}`);
 
             const deviceContext = {
-                kind: "device",        // context kind = device
-                key: id,               // unique identifier (IP atau UUID)
-                device: deviceType,    // Desktop / Mobile / Tablet
-                operatingSystem: operatingSystem, // OS name
-                browserName: browserName          // Browser name
+                kind: "device",
+                key: hashedKey,                // hashed key
+                name: hashedName,              // hashed name
+                device: deviceType,
+                operatingSystem: operatingSystem,
+                browserName: browserName
             };
 
             await ldClient.waitForInitialization();
-            await ldClient.identify(deviceContext); // supaya context muncul di LaunchDarkly
+            await ldClient.identify(deviceContext); // context will be hashed in LD
 
             const isKuotaEnabled = await ldClient.variation("kuota", deviceContext, false);
 
