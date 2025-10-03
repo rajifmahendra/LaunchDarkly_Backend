@@ -2,10 +2,12 @@ require('dotenv').config();
 const express = require('express');
 const LaunchDarkly = require('launchdarkly-node-server-sdk');
 const cors = require('cors');
+const koutaController = require('./controllers/koutaController');
 
 const app = express();
 const port = 3000;
 
+app.use(express.json()); // agar bisa baca JSON body
 app.use(cors());
 
 const ldClient = LaunchDarkly.init(process.env.LD_SDK_KEY);
@@ -25,6 +27,11 @@ app.get('/promo-banner', async (req, res) => {
         res.status(500).json({ error: "Terjadi kesalahan saat mengambil feature flag" });
     }
 });
+
+// Endpoint kuota menggunakan controller
+app.get('/api/getQuota', koutaController.getQuota(ldClient));
+
+app.post('/api/postQuota', koutaController.postQuota(ldClient));
 
 app.listen(port, () => {
     console.log(`Server berjalan di http://localhost:${port}`);
